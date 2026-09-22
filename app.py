@@ -69,8 +69,7 @@ with col_input:
         file_name = uploaded_file.name
         if uploaded_file.type == "application/pdf":
             reader = PdfReader(uploaded_file)
-            raw_text = "
-".join([page.extract_text() for page in reader.pages if page.extract_text()])
+            raw_text = " ".join([page.extract_text() for page in reader.pages if page.extract_text()])
         else:
             raw_text = uploaded_file.read().decode("utf-8", errors="ignore")
         words = len(raw_text.split())
