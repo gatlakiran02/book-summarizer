@@ -25,10 +25,10 @@ def generate_pdf(title: str, author: str, summary_text: str) -> io.BytesIO:
         Paragraph(f"Author: {author or 'Unknown'}", sub_style),
         Spacer(1, 10)
     ]
- for paragraph in summary_text.splitlines():
-    if paragraph.strip():
-        elements.append(Paragraph(paragraph.strip(), body_style))
-        elements.append(Spacer(1, 4))
+    for paragraph in summary_text.splitlines():
+        if paragraph.strip():
+            elements.append(Paragraph(paragraph.strip(), body_style))
+            elements.append(Spacer(1, 4))
 
     doc.build(elements)
     buffer.seek(0)
