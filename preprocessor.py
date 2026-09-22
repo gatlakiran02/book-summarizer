@@ -6,14 +6,13 @@ class TextPreprocessor:
     def clean_text(text: str) -> str:
         if not text:
             return ""
-        text = re.sub(r'[
-	]+', ' ', text)
-        text = re.sub(r'\s+', ' ', text)
+        # Normalize all whitespace and newlines
+        text = re.sub(r"\s+", " ", text)
         return text.strip()
 
     @staticmethod
     def split_into_sentences(text: str) -> List[str]:
-        sentence_endings = re.compile(r'(?<=[.!?])\s+')
+        sentence_endings = re.compile(r"(?<=[.!?])\s+")
         sentences = sentence_endings.split(text)
         return [s.strip() for s in sentences if s.strip()]
 
