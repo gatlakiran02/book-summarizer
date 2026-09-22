@@ -38,22 +38,23 @@ class CloudLLMSummarizer:
             if style == "Bullet Points"
             else "Format the summary in coherent, well-structured paragraphs with clear transitions."
         )
-        metadata = f"Book: '{title}'" + (f" by {author}" if author else "")
+        author_str = f" by {author}" if author else ""
+        metadata = f"Book: {title}{author_str}"
 
-        return f"""
-Please analyze and summarize the following text from {metadata}.
-
-Requirements:
-1. Target Length: {target_length}.
-2. Output Format: {format_instruction}
-3. Content Focus:
-   - Central premise or thesis.
-   - Core supporting events, themes, or arguments.
-   - Key takeaways and conclusions.
-
-Text to summarize:
-"""{text}"""
-"""
+        return (
+            f"Please analyze and summarize the following text from {metadata}.\n\n"
+            f"Requirements:\n"
+            f"1. Target Length: {target_length}.\n"
+            f"2. Output Format: {format_instruction}\n"
+            f"3. Content Focus:\n"
+            f"   - Central premise or thesis.\n"
+            f"   - Core supporting events, themes, or arguments.\n"
+            f"   - Key takeaways and conclusions.\n\n"
+            f"Text to summarize:\n"
+            f"---------------------\n"
+            f"{text}\n"
+            f"---------------------\n"
+        )
 
     def summarize_single_pass(self, text: str, length_setting: str, style: str, title: str = "Untitled", author: str = "") -> str:
         prompt = self._build_prompt(text, length_setting, style, title, author)
@@ -82,16 +83,11 @@ Text to summarize:
         chunks = TextPreprocessor.create_overlapping_chunks(text, chunk_size=2500, overlap=250)
         chunk_summaries = []
         for i, chunk in enumerate(chunks):
-            chunk_prompt = f"Summarize key ideas and main events from this section of '{title}' in 100-150 words:
-
-{chunk}"
+            chunk_prompt = f"Summarize key ideas and main events from this section of {title} in 100-150 words:\n\n{chunk}"
             if self.provider == "gemini":
                 res = self.client.generate_content(chunk_prompt)
                 chunk_summaries.append(res.text.strip())
             time.sleep(0.5)
 
-        combined_input = "
-
-".join([f"Section {i+1} Summary:
-{s}" for i, s in enumerate(chunk_summaries)])
+        combined_input = "\n\n".join([f"Section {i+1} Summary:\n{s}" for i, s in enumerate(chunk_summaries)])
         return self.summarize_single_pass(combined_input, length_setting, style, title, author)
